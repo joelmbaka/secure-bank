@@ -43,11 +43,11 @@ export default function Deposit({ onDeposit, onDepositSuccess }: Props) {
     try {
       // Create payment intent via Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('process-deposit', {
-        body: {
+        body: JSON.stringify({
           amount: amountNum,
           currency: 'usd',
           user_id: user.id,
-        },
+        }),
       });
 
       if (error || !data) {
