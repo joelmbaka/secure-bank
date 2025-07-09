@@ -42,3 +42,26 @@ FOR ALL TO service_role USING (true);
 -- Create indexes for faster queries
 CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_created ON transactions(created_at);
+
+-- Function to keep user balance in sync with transactions
+CREATE OR REPLACE FUNCTION update_user_balance()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.type = 'deposit' THEN
+    UPDATE profiles
+    SET balance = balance + NEW.amount
+    WHERE id = NEW.user_id;
+  ELSIF NEW.type = 'withdrawal' THEN
+    UPDATE profiles
+    SET balance = balance - NEW.amount
+    WHERE id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to fire after each transaction insert
+CREATE TRIGGER update_balance_trigger
+AFTER INSERT ON transactions
+FOR EACH ROW
+EXECUTE FUNCTION update_user_balance();
