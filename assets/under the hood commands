@@ -1,0 +1,22 @@
+-- Admin change prevention trigger
+CREATE OR REPLACE FUNCTION public.prevent_admin_escalation()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.is_admin <> OLD.is_admin AND NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'Admin status can only be changed by existing administrators';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_admin_update
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_admin_escalation();
+
+-- Run as superuser to update admin status
+BEGIN;
+ALTER TABLE profiles DISABLE TRIGGER check_admin_update;
+UPDATE profiles SET is_admin = false WHERE id = '651c9095-198f-4c9b-b515-9bf18829ac01';
+ALTER TABLE profiles ENABLE TRIGGER check_admin_update;
+COMMIT;

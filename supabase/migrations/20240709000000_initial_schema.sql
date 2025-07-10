@@ -39,7 +39,7 @@ CREATE POLICY "Users can insert their own profile" ON profiles
 FOR INSERT
 WITH CHECK (auth.uid() = id);
 
--- Allow users to update their own profile
+-- Allow users to update non-admin fields in their profile
 CREATE POLICY "Users can update own profile" ON profiles
 FOR UPDATE
 USING (auth.uid() = id);
@@ -53,6 +53,31 @@ USING (auth.uid() = id);
 CREATE POLICY "Admins can read all profiles" ON profiles
 FOR SELECT
 USING (public.is_admin(auth.uid()));
+
+-- #########################
+-- ADMIN ESCALATION PREVENTION
+-- #########################
+
+-- Function to prevent non-admins from changing admin status
+CREATE OR REPLACE FUNCTION public.prevent_admin_escalation()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.is_admin <> OLD.is_admin AND NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'Admin status can only be changed by existing administrators';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to enforce admin change restrictions
+CREATE TRIGGER check_admin_update
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_admin_escalation();
+
+-- #########################
+-- EXISTING FUNCTIONALITY
+-- #########################
 
 -- User creation trigger
 CREATE FUNCTION public.handle_new_user()
