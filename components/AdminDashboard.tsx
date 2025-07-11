@@ -55,6 +55,7 @@ export default function AdminDashboard() {
           <View style={styles.userCard}>
             <Text style={styles.userEmail}>{item.email}</Text>
             <Text>Username: {item.username}</Text>
+            <Text>User ID: {item.id}</Text>
             <Text>Balance: {item.balance}</Text>
             <Text>Admin: {item.is_admin ? 'Yes' : 'No'}</Text>
           </View>

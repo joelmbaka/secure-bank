@@ -6,12 +6,16 @@ type Props = {
   isRefreshing: boolean
   onDepositPress: () => void
   onSendMoneyPress: () => void
+  email?: string
 }
 
-export default function Dashboard({ balance, isRefreshing, onDepositPress, onSendMoneyPress }: Props) {
+export default function Dashboard({ balance, isRefreshing, onDepositPress, onSendMoneyPress, email }: Props) {
 
   return (
     <View style={[styles.container, { justifyContent: 'center' }]}>
+      {email && (
+        <Text style={styles.emailText}>{email}</Text>
+      )}
       <Text style={styles.title}>Dashboard</Text>
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceLabel}>Current Balance</Text>
@@ -44,9 +48,14 @@ export default function Dashboard({ balance, isRefreshing, onDepositPress, onSen
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 0,
+    marginTop: 40,
     padding: 12,
     alignItems: 'center',
+  },
+  emailText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
   },
   title: {
     fontSize: 24,

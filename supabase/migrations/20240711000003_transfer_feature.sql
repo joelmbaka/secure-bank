@@ -1,4 +1,4 @@
--- Add money transfer functionality with intentional vulnerabilities
+-- Add money transfer functionality
 
 -- Helper function to transfer funds between accounts
 CREATE OR REPLACE FUNCTION transfer_funds(
@@ -41,27 +41,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Vulnerable function that trusts client input without validation
+-- function that trusts client input without validation
 CREATE OR REPLACE FUNCTION process_transfer(
-    from_user_id UUID,
+    current_user_id UUID,
     recipient_email TEXT,
     amount NUMERIC
 ) RETURNS VOID AS $$
 DECLARE
-    recipient_record RECORD;
+    recipient_id UUID;
 BEGIN
-    -- Lookup recipient by email (trusts client input)
-    SELECT * INTO recipient_record 
-    FROM profiles 
-    WHERE email = recipient_email 
-    LIMIT 1;
+    -- Look up recipient by email
+    SELECT id INTO recipient_id FROM public.profiles WHERE email = recipient_email;
     
-    IF recipient_record IS NULL THEN
+    IF recipient_id IS NULL THEN
         RAISE EXCEPTION 'Recipient not found';
     END IF;
     
-    -- Transfer funds without validating sender ownership
-    PERFORM transfer_funds(from_user_id, recipient_record.id, amount);
+    -- Transfer funds
+    PERFORM transfer_funds(current_user_id, recipient_id, amount);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

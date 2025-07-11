@@ -33,6 +33,7 @@ export default function App() {
   }, [])
 
   const fetchProfile = useCallback(async () => {
+    console.log('Fetching profile from server...');
     setIsRefreshing(true);
     try {
       if (session?.user) {
@@ -41,6 +42,8 @@ export default function App() {
           .select(`username, website, avatar_url, balance, is_admin`)
           .eq('id', session.user.id)
           .single()
+
+        console.log('Profile data received:', data);
 
         if (data) {
           setUsername(data.username)
@@ -71,7 +74,6 @@ export default function App() {
 
   const handleDeposit = (amount: number) => {
     if (amount > 0) {
-      setBalance((prev) => prev + amount)
       setScreen('dashboard')
     }
   }
@@ -84,7 +86,8 @@ export default function App() {
             balance={balance} 
             isRefreshing={isRefreshing}
             onDepositPress={() => setScreen('deposit')} 
-            onSendMoneyPress={() => setScreen('sendMoney')} 
+            onSendMoneyPress={() => setScreen('sendMoney')}
+            email={session.user?.email}
           />
         )
       case 'deposit':

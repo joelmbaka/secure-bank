@@ -17,38 +17,60 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  const { from_user_id, recipient_email, amount } = await req.json()
-
-  // Initialize Supabase with service role (bypasses RLS)
+  const authHeader = req.headers.get('Authorization')!
+  const token = authHeader.replace('Bearer ', '')
+  
+  // Initialize Supabase client
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    { global: { headers: { Authorization: token } } }
   )
 
-  try {
-    // Minimal validation
-    if (typeof amount !== 'number' || amount <= 0) {
-      throw new Error('Invalid amount')
-    }
+  // Get the authenticated user
+  const { data: { user } } = await supabase.auth.getUser(token)
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401,
+    })
+  }
 
-    // Call the vulnerable function: process_transfer
+  const { recipient_email, amount } = await req.json()
+  
+  // Validate inputs
+  if (typeof amount !== 'number' || amount <= 0) {
+    return new Response(JSON.stringify({ error: 'Invalid amount' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
+  }
+  
+  if (typeof recipient_email !== 'string' || !recipient_email.includes('@')) {
+    return new Response(JSON.stringify({ error: 'Invalid recipient email' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
+  }
+
+  try {
+    // Call the process_transfer function with the authenticated user's ID
     const { data, error } = await supabase.rpc('process_transfer', {
-      from_user_id,
+      current_user_id: user.id,
       recipient_email,
       amount,
     })
 
     if (error) throw error
-
-    return new Response(
-      JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 },
-    )
+    
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    })
   } catch (err) {
-    console.error(err)
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 },
-    )
+    return new Response(JSON.stringify({ error: err.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
   }
 })
