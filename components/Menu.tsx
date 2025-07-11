@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Button } from '@rneui/themed'
 
-type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin'
+type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
 
 type Props = {
   navigate: (s: Screen) => void

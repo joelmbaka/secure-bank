@@ -10,11 +10,11 @@ import AdminDashboard from './components/AdminDashboard'
 import { View } from 'react-native'
 import { Session } from '@supabase/supabase-js'
 
-type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
+type AppScreen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
-  const [screen, setScreen] = useState<Screen>('dashboard')
+  const [screen, setScreen] = useState<AppScreen>('dashboard')
   const [balance, setBalance] = useState(0)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')

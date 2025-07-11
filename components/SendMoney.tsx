@@ -50,7 +50,8 @@ export default function SendMoney({ onSend, onSendSuccess }: Props) {
       onSendSuccess();
       onSend();
     } catch (err) {
-      setMessage('Failed to send money: ' + err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      setMessage('Failed to send money: ' + errorMessage);
     } finally {
       setIsSending(false);
     }
