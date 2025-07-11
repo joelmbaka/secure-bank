@@ -26,7 +26,7 @@ ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stripe_webhook_events ENABLE ROW LEVEL SECURITY;
 
 -- Grant permissions
-GRANT SELECT, INSERT ON TABLE transactions TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE transactions TO authenticated, service_role;
 GRANT SELECT, INSERT, UPDATE ON TABLE stripe_webhook_events TO service_role;
 
 -- RLS Policies for transactions
@@ -60,8 +60,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger to fire after each transaction insert
+-- Trigger to fire after each transaction insert or update
 CREATE TRIGGER update_balance_trigger
-AFTER INSERT ON transactions
+AFTER INSERT OR UPDATE ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION update_user_balance();

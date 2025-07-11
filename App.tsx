@@ -4,12 +4,13 @@ import Auth from './components/Auth'
 import Account from './components/Account'
 import Dashboard from './components/Dashboard'
 import Deposit from './components/Deposit'
+import SendMoney from './components/SendMoney'
 import Menu from './components/Menu'
 import AdminDashboard from './components/AdminDashboard'
 import { View } from 'react-native'
 import { Session } from '@supabase/supabase-js'
 
-type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin'
+type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -83,10 +84,13 @@ export default function App() {
             balance={balance} 
             isRefreshing={isRefreshing}
             onDepositPress={() => setScreen('deposit')} 
+            onSendMoneyPress={() => setScreen('sendMoney')} 
           />
         )
       case 'deposit':
         return <Deposit onDeposit={handleDeposit} onDepositSuccess={fetchProfile} />
+      case 'sendMoney':
+        return <SendMoney onSend={() => setScreen('dashboard')} onSendSuccess={fetchProfile} />
       case 'profile':
         return <Account key={session.user.id} session={session} />
       case 'admin':
@@ -97,6 +101,7 @@ export default function App() {
             balance={balance}
             isRefreshing={isRefreshing}
             onDepositPress={() => setScreen('deposit')}
+            onSendMoneyPress={() => setScreen('sendMoney')} 
           />
         );
     }

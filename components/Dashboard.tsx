@@ -5,9 +5,10 @@ type Props = {
   balance: number
   isRefreshing: boolean
   onDepositPress: () => void
+  onSendMoneyPress: () => void
 }
 
-export default function Dashboard({ balance, isRefreshing, onDepositPress }: Props) {
+export default function Dashboard({ balance, isRefreshing, onDepositPress, onSendMoneyPress }: Props) {
 
   return (
     <View style={[styles.container, { justifyContent: 'center' }]}>
@@ -26,6 +27,12 @@ export default function Dashboard({ balance, isRefreshing, onDepositPress }: Pro
           onPress={onDepositPress}
         >
           <Text style={styles.depositButtonText}>Deposit Funds</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.sendMoneyButton}
+          onPress={onSendMoneyPress}
+        >
+          <Text style={styles.sendMoneyButtonText}>Send Money</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.withdrawButton} disabled>
           <Text style={styles.withdrawButtonText}>Withdraw Funds (Coming Soon)</Text>
@@ -68,6 +75,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   depositButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  sendMoneyButton: {
+    backgroundColor: '#28a745',
+    padding: 12,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  sendMoneyButtonText: {
     color: '#fff',
     fontSize: 16,
   },

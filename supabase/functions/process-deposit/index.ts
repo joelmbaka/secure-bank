@@ -26,11 +26,19 @@ serve(async (req) => {
   );
 
   try {
+    // Validate amount
+    if (typeof amount !== 'number' || amount < 0.5 || amount > 10000) {
+      throw new Error('Invalid deposit amount. Amount must be between $0.50 and $10,000.');
+    }
+
     // Create Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // in cents
       currency: currency || 'usd',
-      automatic_payment_methods: { enabled: true },
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never' // Disable redirect-based payment methods
+      },
       metadata: { user_id },
     });
 
