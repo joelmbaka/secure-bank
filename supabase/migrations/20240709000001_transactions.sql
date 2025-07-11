@@ -47,13 +47,13 @@ CREATE INDEX idx_transactions_created ON transactions(created_at);
 CREATE OR REPLACE FUNCTION update_user_balance()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.type = 'deposit' THEN
-    UPDATE profiles
-    SET balance = balance + NEW.amount
-    WHERE id = NEW.user_id;
-  ELSIF NEW.type = 'withdrawal' THEN
-    UPDATE profiles
-    SET balance = balance - NEW.amount
+  IF NEW.status = 'completed' THEN
+    UPDATE profiles 
+    SET balance = balance + 
+      CASE NEW.type
+        WHEN 'deposit' THEN NEW.amount
+        WHEN 'withdrawal' THEN -NEW.amount
+      END
     WHERE id = NEW.user_id;
   END IF;
   RETURN NEW;

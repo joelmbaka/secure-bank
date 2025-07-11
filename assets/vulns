@@ -1,0 +1,39 @@
+1. Transaction RLS still lets users mint money
+• Policy "Users can insert transactions" only checks auth.uid() = user_id.
+• A client can directly run
+```sql
+insert into transactions
+  (user_id,type,amount,status)  -- any amount / status
+  values (auth.uid(),'deposit',100000,'completed');
+```
+• update_balance_trigger fires after every insert and always changes the balance, no matter the status, so the profile balance jumps instantly.
+• They can also pass negative amounts or use withdrawal/transfer tricks. Fix →
+• Remove INSERT permission for the authenticated role, or keep it but add CHECK (status = 'pending' and amount > 0 and stripe_payment_intent_id is not null).
+• Make update_user_balance() run AFTER UPDATE (status → completed) or add WHEN (NEW.status = 'completed').
+• Prefer a signed RPC / Edge function executed with the service_role key to insert/update transactions.
+2. Unrestricted storage bucket
+Bucket avatars has:
+```sql
+CREATE POLICY "Anyone can upload avatar" ON storage.objects
+FOR INSERT WITH CHECK (bucket_id = 'avatars');
+```
+Any logged-in user can overwrite or spam arbitrary keys (including someone else’s avatar) and upload malicious-content.
+Fix → include WITH CHECK (auth.uid() = owner) and/or path-prefix enforcement (storage.foldername = auth.uid()).
+3. Edge-function error leakage
+Both process-deposit and stripe-webhooks return err.message verbatim. Stripe / Supabase errors can expose stack traces, table names, key names or even environment-variable snippets.
+Fix → log server-side, but return a generic message to the client.
+4. No input validation in process-deposit
+Front-end can send amount = -10 or huge values. Stripe will reject negatives, but the DB insert happens before payment succeeds, so a malicious caller can still spam transactions with bogus data. Add server-side validation and move the DB insert until after Stripe confirms the intent was created.
+5. Public read on profile avatars
+Avatar public access allows anyone (even anonymous) to fetch every object in the bucket. If you expect only logged-in users to view avatars, change it to USING (auth.role() = 'authenticated') or restrict by path.
+6. Front-end balance desync
+handleDeposit in App.tsx directly adds amount to local state without fetching the updated profile. An attacker can trick the UI into showing inflated balances (phishing/social-engineering risk). Always refresh from the DB instead of trusting client maths.
+7. Very loose numeric constraints
+amount NUMERIC(15,2) is wide and has no CHECK (amount > 0). Even if you fix RLS, inserting a withdrawal larger than current balance will drive balance negative. Add DB-level checks (balance + new_amount >= 0) or transactional logic inside a stored procedure.
+8. Large JSON bodies in stripe_webhook_events
+Webhook payloads are stored unbounded; a flood of events can bloat the table. Consider size caps / periodic pruning.
+9. Missing rate-limits & CAPTCHA on Auth routes
+Nothing stops automated signup / password-guessing. Enable Supabase built-in rate limiting or add Cloudflare/Turnstile.
+10. No CSP / security headers in Expo web build (if you ship web)
+Configure @expo/next-adapter or a reverse proxy to add CSP, X-Frame-Options, etc.
+Prioritise 1 and 2—they allow direct monetary gain or file abuse. The rest tighten overall security and resilience.
