@@ -1,4 +1,4 @@
-# Secure vs Vulnerable Mobile Banking Demo
+# Benchmark for Secure Mobile Banking App Demo
 
 A comprehensive demonstration of secure and vulnerable mobile banking implementations, designed to educate developers on common security pitfalls in financial applications.
 
