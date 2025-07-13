@@ -7,10 +7,11 @@ import Deposit from './components/Deposit'
 import SendMoney from './components/SendMoney'
 import Menu from './components/Menu'
 import AdminDashboard from './components/AdminDashboard'
+import Savings from './components/Savings'
 import { View } from 'react-native'
 import { Session } from '@supabase/supabase-js'
 
-type AppScreen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
+type AppScreen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney' | 'savings'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -87,6 +88,7 @@ export default function App() {
             isRefreshing={isRefreshing}
             onDepositPress={() => setScreen('deposit')} 
             onSendMoneyPress={() => setScreen('sendMoney')}
+            onSavingsPress={() => setScreen('savings')} 
             email={session.user?.email}
           />
         )
@@ -94,6 +96,15 @@ export default function App() {
         return <Deposit onDeposit={handleDeposit} onDepositSuccess={fetchProfile} />
       case 'sendMoney':
         return <SendMoney onSend={() => setScreen('dashboard')} onSendSuccess={fetchProfile} />
+      case 'savings':
+        return (
+          <Savings 
+            session={session}
+            onBack={() => setScreen('dashboard')}
+            onRefresh={fetchProfile}
+            balance={balance}
+          />
+        )
       case 'profile':
         return <Account key={session.user.id} session={session} />
       case 'admin':
@@ -105,6 +116,7 @@ export default function App() {
             isRefreshing={isRefreshing}
             onDepositPress={() => setScreen('deposit')}
             onSendMoneyPress={() => setScreen('sendMoney')} 
+            onSavingsPress={() => setScreen('savings')} 
           />
         );
     }

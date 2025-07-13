@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Button } from '@rneui/themed'
 
-type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney'
+type Screen = 'dashboard' | 'deposit' | 'profile' | 'admin' | 'sendMoney' | 'savings'
 
 type Props = {
   navigate: (s: Screen) => void
@@ -30,6 +30,12 @@ export default function Menu({ navigate, current, isAdmin }: Props) {
         containerStyle={styles.button}
         title="Profile"
         onPress={() => navigate('profile')}
+      />
+      <Button
+        type={current === 'savings' ? 'solid' : 'outline'}
+        containerStyle={styles.button}
+        title="Savings"
+        onPress={() => navigate('savings')}
       />
       {isAdmin && (
         <Button
