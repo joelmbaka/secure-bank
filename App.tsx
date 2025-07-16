@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
-import Auth from './components/Auth'
+import SignIn from './components/SignIn'
+import SignUp from './components/SignUp'
 import Account from './components/Account'
 import Dashboard from './components/Dashboard'
 import Deposit from './components/Deposit'
@@ -22,6 +23,7 @@ export default function App() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [authScreen, setAuthScreen] = useState<'signIn' | 'signUp'>('signIn')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -67,8 +69,12 @@ export default function App() {
 
   if (!session || !session.user) {
     return (
-      <View>
-        <Auth />
+      <View style={{ flex: 1 }}>
+        {authScreen === 'signIn' ? (
+          <SignIn onGoSignUp={() => setAuthScreen('signUp')} />
+        ) : (
+          <SignUp onGoSignIn={() => setAuthScreen('signIn')} />
+        )}
       </View>
     )
   }

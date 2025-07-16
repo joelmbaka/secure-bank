@@ -86,7 +86,14 @@ export default function Savings({ session, onBack, onRefresh, balance }: Props) 
         throw error;
       }
       console.log('User savings data:', data);
-      setSavings(data || []);
+      // Normalize savings_product to object (not array) to match UserSaving type
+      const normalized: UserSaving[] = (data || []).map((item: any) => ({
+        ...item,
+        savings_product: Array.isArray(item.savings_product)
+          ? item.savings_product[0] ?? { name: '', annual_interest_pct: 0, term_months: 0 }
+          : item.savings_product,
+      }));
+      setSavings(normalized);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       Alert.alert('Error', message);
