@@ -1,53 +1,174 @@
-# Benchmark for Secure Mobile Banking App Demo
+# Secure Mobile Banking Application
 
-A comprehensive demonstration of secure and vulnerable mobile banking implementations, designed to educate developers on common security pitfalls in financial applications.
+A secure, production-ready mobile banking application built with React Native and Supabase, implementing industry-standard security practices for financial applications.
 
-## Overview
+## 🚀 Features
 
-This project showcases two parallel implementations of a mobile banking backend:
-- **Secure Implementation**: (this project) Follows security best practices
-- **Vulnerable Implementation**: ( project on https://github.com/joelmbaka/vulnerable-bank) Intentionally contains common security flaws for educational purposes. Use it alongs with this project to test your skills.
+- **User Authentication**
+  - Secure sign-up and sign-in with email/password
+  - Session management with JWT
+  - Password reset functionality
 
-The application is built with:
+- **Banking Operations**
+  - View account balance
+  - Deposit funds (with Stripe integration)
+  - Send money to other users
+  - Track transaction history
+  - Savings account management
+
+- **Admin Dashboard**
+  - User management
+  - Transaction monitoring
+  - System analytics
+
+- **Security Features**
+  - Row-Level Security (RLS) policies
+  - Role-based access control (RBAC)
+  - Secure token handling
+  - Protected API routes
+  - Input validation
+  - Secure storage of sensitive data
+
+## 🛠️ Tech Stack
+
 - **Frontend**: React Native (Expo)
-- **Backend**: Node.js with Supabase (PostgreSQL)
+- **Backend**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
 - **Payments**: Stripe Integration
-- **Security Testing**: Burp Suite
+- **State Management**: React Context API
+- **UI Components**: React Native Elements UI
+- **Environment Management**: react-native-dotenv
 
-## Key Security Features
+## 📱 Screens
 
-### 1. Authentication & Authorization
+1. **Authentication**
+   - Sign In
+   - Sign Up
+   - Password Recovery
+
+2. **User Dashboard**
+   - Account Overview
+   - Quick Actions (Deposit, Send, Save)
+   - Recent Transactions
+
+3. **Banking**
+   - Deposit Funds (Stripe)
+   - Send Money
+   - Transaction History
+   - Savings Account
+
+4. **Profile**
+   - Account Settings
+   - Personal Information
+   - Security Settings
+
+5. **Admin Panel**
+   - User Management
+   - Transaction Monitoring
+   - System Analytics
+
+## 🔒 Security Implementation
+
+### Authentication & Authorization
 - JWT-based authentication with Supabase Auth
-- Row-Level Security (RLS) policies for data access control
-- Role-based access control (RBAC) for admin functions
 - Secure session management with token refresh
+- Role-based access control (RBAC)
+- Row-Level Security (RLS) policies
 
-### 2. Security Measures
-- **Admin Escalation Prevention**:
-  - `prevent_admin_escalation()` trigger prevents privilege escalation
-  - Admin actions require existing admin privileges
-  - Secure RLS policies for admin operations
+### Data Protection
+- Encrypted data at rest and in transit
+- Secure storage of sensitive information
+- Input validation and sanitization
+- Protection against common web vulnerabilities (XSS, CSRF, SQL Injection)
 
-- **Financial Transaction Security**:
-  - Server-side balance validation
-  - Transaction history with immutable records
-  - Double-entry bookkeeping pattern for transfers
+### Financial Security
+- Server-side balance validation
+- Audit logging for all transactions
+- Rate limiting on sensitive endpoints
+- Transaction verification mechanisms
 
-- **Data Protection**:
-  - Row-level security for all sensitive tables
-  - Sensitive operations require explicit authorization
-  - Secure storage of credentials using environment variables
+## 🚀 Getting Started
 
-## Vulnerabilities Demonstrated (and Their Fixes)
+### Prerequisites
 
-### 1. Privilege Escalation via Insecure Profile Update
-- **Vulnerability**: Attackers could escalate privileges by modifying `is_admin` flag
-- **Fix**: Implemented `prevent_admin_escalation()` trigger and proper RLS policies
+- Node.js (v16 or later)
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+- Supabase account
+- Stripe account (for payment processing)
 
-### 2. IDOR in Money Transfers
-- **Vulnerability**: Unauthorized fund movement by forging `from_user_id`
-- **Fix**: Server-side user ID derivation and ownership validation
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/joelmbaka/secure-bank.git
+   cd secure-bank
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   ```
+
+4. Start the development server:
+   ```bash
+   expo start
+   ```
+
+5. Run on your preferred platform:
+   ```bash
+   # For Android
+   expo run:android
+   
+   # For iOS
+   expo run:ios
+   
+   # For web
+   expo start --web
+   ```
+
+## 🧪 Testing the Application
+
+### Unit Tests
+```bash
+npm test
+```
+
+### Security Testing
+1. Run static code analysis
+2. Perform penetration testing
+3. Check for dependency vulnerabilities:
+   ```bash
+   npm audit
+   ```
+
+## 📚 Learning Resources
+
+- [Supabase Documentation](https://supabase.com/docs)
+- [React Native Security](https://reactnative.dev/docs/security)
+- [OWASP Mobile Security Testing Guide](https://owasp.org/www-project-mobile-security-testing-guide/)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) to get started.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Related Projects
+
+- [Vulnerable Bank Implementation](https://github.com/joelmbaka/vulnerable-bank) - An intentionally vulnerable version of this application for educational purposes
 
 ### 3. Balance Inflation via Direct Transaction Insert
 - **Vulnerability**: Users could inject fake deposits bypassing business logic
